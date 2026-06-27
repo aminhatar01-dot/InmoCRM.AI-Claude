@@ -1,123 +1,191 @@
-﻿# InmoCRM.AI ðŸ 
+# InmoCRM.AI
 
-CRM inmobiliario nativo en IA. Plataforma SaaS multi-tenant con agente conversacional, bandeja omnicanal y gestiÃ³n inteligente de leads para inmobiliarias.
+CRM inmobiliario nativo en IA. Plataforma SaaS multi-tenant con agente conversacional, bandeja omnicanal y gestion inteligente de leads para inmobiliarias de Latinoamerica.
 
-## Stack
+## Stack tecnologico
 
-- **Frontend**: Next.js 14 (App Router) + TypeScript + Tailwind CSS
-- **Backend**: Supabase (PostgreSQL + Auth + Realtime + Storage + Edge Functions)
-- **IA**: OpenAI GPT-4o + LangChain.js + pgvector (RAG)
-- **Deploy**: Vercel (CI/CD con GitHub Actions)
-- **Pagos**: Stripe + MercadoPago
+| Capa | Tecnologia |
+|---|---|
+| Frontend | Next.js 14 (App Router), TypeScript strict, Tailwind CSS |
+| Backend / DB | Supabase (Postgres + pgvector + Realtime + Storage) |
+| Auth | Supabase Auth (JWT + RLS multi-tenant) |
+| IA | OpenAI GPT-4o (agente), text-embedding-3-small (RAG) |
+| Edge Functions | Deno (Supabase Functions) |
+| Billing | Stripe REST API (sin SDK) |
+| PWA | Service Worker nativo, Web Push |
+| Charts | Recharts |
+| Iconos | Lucide React |
+| Estado global | Zustand |
 
-## Setup local
+## Arquitectura multi-tenant
 
-### 1. Clonar el repositorio
+Cada agencia (tenant) tiene su propio espacio completamente aislado mediante Row Level Security en Postgres. La funcion SQL `obtener_tenant_id_usuario()` inyecta el `tenant_id` en cada politica RLS, eliminando la necesidad de filtros manuales en el codigo de aplicacion.
 
-```bash
-git clone https://github.com/aminhatar01-dot/InmoCRM.AI-Claude.git
-cd InmoCRM.AI-Claude
+```
+Usuario → JWT → Supabase Auth → RLS → tenant_id aislado
 ```
 
-### 2. Instalar dependencias
+## Fases del proyecto
+
+| Fase | Modulo | Estado |
+|---|---|---|
+| 1 | Setup base: Next.js, Supabase, Tailwind, tipos | Completo |
+| 2 | Auth completa + wizard onboarding 5 pasos | Completo |
+| 3 | Bandeja omnicanal en tiempo real + agente IA | Completo |
+| 4 | CRM completo: Kanban, propiedades, sync Tokko | Completo |
+| 5 | Automatizaciones, campanas broadcast, notificaciones | Completo |
+| 6 | Integraciones marketplace + Stripe billing | Completo |
+| 7 | Analiticas Recharts, PWA, pagina de precios | Completo |
+
+## Variables de entorno
+
+Crear `.env.local` en la raiz del proyecto:
+
+```env
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=https://qwxybkzezjpsiccawqza.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon_key>
+SUPABASE_SERVICE_ROLE_KEY=<service_role_key>   # solo server-side, nunca exponer
+
+# OpenAI
+OPENAI_API_KEY=<api_key>                        # solo server-side
+
+# Stripe
+STRIPE_SECRET_KEY=sk_live_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+NEXT_PUBLIC_STRIPE_PRICE_BASICO=price_...
+NEXT_PUBLIC_STRIPE_PRICE_PRO=price_...
+NEXT_PUBLIC_STRIPE_PRICE_ENTERPRISE=price_...
+
+# Cifrado de credenciales de integraciones (AES-256-GCM)
+ENCRYPTION_KEY=<32-caracteres-random>
+
+# URL publica (para webhooks de Meta y Stripe)
+NEXT_PUBLIC_APP_URL=https://tu-dominio.vercel.app
+```
+
+### Configurar en Vercel
 
 ```bash
+vercel env add SUPABASE_SERVICE_ROLE_KEY
+vercel env add OPENAI_API_KEY
+vercel env add STRIPE_SECRET_KEY
+vercel env add STRIPE_WEBHOOK_SECRET
+vercel env add ENCRYPTION_KEY
+```
+
+## Migraciones de base de datos
+
+Aplicar en orden desde el dashboard de Supabase (SQL Editor) o via CLI:
+
+```bash
+supabase db push
+```
+
+| Archivo | Contenido |
+|---|---|
+| `001_schema_base.sql` | Tablas principales + RLS + triggers |
+| `002_funciones_ia.sql` | Funciones SQL para el agente IA |
+| `003_propiedades_vector.sql` | Extension pgvector + columna embedding |
+| `004_indices_crm.sql` | Indices GIN, trigram, compuestos |
+| `005_automatizaciones.sql` | Secuencias follow-up, campanas, notificaciones, pg_cron |
+| `006_stripe_billing.sql` | Columnas Stripe, tabla pagos, paquetes_tokens |
+| `007_funciones_analitica.sql` | Funciones SQL para dashboard de analiticas |
+
+## Edge Functions de Supabase
+
+Deployar todas las funciones:
+
+```bash
+supabase functions deploy agente-ia
+supabase functions deploy vectorizar-propiedades
+supabase functions deploy broadcast-whatsapp
+supabase functions deploy motor-followup
+supabase functions deploy detectar-recordatorios
+```
+
+Cada funcion requiere los secrets configurados en Supabase:
+
+```bash
+supabase secrets set OPENAI_API_KEY=<clave>
+supabase secrets set ENCRYPTION_KEY=<clave>
+```
+
+## Webhooks a configurar
+
+### Meta (WhatsApp / Instagram)
+- URL: `https://tu-dominio.vercel.app/api/webhooks/meta`
+- Verificacion: token configurado en `META_WEBHOOK_VERIFY_TOKEN`
+- Eventos: `messages`, `message_reactions`
+
+### Stripe
+- URL: `https://tu-dominio.vercel.app/api/stripe/webhook`
+- Eventos: `checkout.session.completed`, `customer.subscription.*`, `invoice.payment_failed`
+- El secreto de webhook va en `STRIPE_WEBHOOK_SECRET`
+
+## Desarrollo local
+
+```bash
+# Instalar dependencias
 npm install
-```
 
-### 3. Configurar variables de entorno
-
-```bash
-cp .env.example .env.local
-# Editar .env.local con tus credenciales
-```
-
-Variables mÃ­nimas para desarrollo:
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- `OPENAI_API_KEY`
-
-### 4. Configurar Supabase
-
-1. CreÃ¡ un proyecto en [supabase.com](https://supabase.com)
-2. EjecutÃ¡ la migraciÃ³n en el SQL Editor de Supabase:
-
-```bash
-# CopiÃ¡ el contenido de supabase/migrations/001_esquema_inicial.sql
-# y ejecutalo en el SQL Editor de tu proyecto Supabase
-```
-
-3. CopiÃ¡ la URL y la clave anon de Settings â†’ API en tu `.env.local`
-
-### 5. Iniciar en desarrollo
-
-```bash
+# Iniciar servidor de desarrollo
 npm run dev
+
+# Verificar tipos TypeScript
+npx tsc --noEmit
+
+# Supabase local (opcional)
+supabase start
 ```
 
-AbrÃ­ [http://localhost:3000](http://localhost:3000)
+## Seguridad
 
-## Deploy a producciÃ³n
+- **NUNCA** exponer `SUPABASE_SERVICE_ROLE_KEY` o `OPENAI_API_KEY` al cliente
+- Las credenciales de integraciones (WhatsApp, Tokko, etc.) se cifran con AES-256-GCM antes de guardar en la DB
+- Los webhooks de Meta y Stripe verifican firma HMAC-SHA256
+- RLS activo en TODAS las tablas — ninguna query accede a datos de otro tenant
 
-El deploy es automÃ¡tico via GitHub Actions:
-
-- Push a `main` â†’ deploy en Vercel (producciÃ³n)
-- Push a `develop` o apertura de PR â†’ deploy de preview
-
-### Configurar secretos en GitHub
-
-En Settings â†’ Secrets and variables â†’ Actions:
-
-```
-VERCEL_TOKEN=
-VERCEL_ORG_ID=
-VERCEL_PROJECT_ID=
-```
-
-## Estructura del proyecto
+## Estructura de carpetas
 
 ```
 src/
-â”œâ”€â”€ app/
-â”‚   â”œâ”€â”€ (marketing)/      # Landing, precios, blog
-â”‚   â”œâ”€â”€ (autenticacion)/  # Login, registro, onboarding
-â”‚   â”œâ”€â”€ (aplicacion)/     # App autenticada
-â”‚   â””â”€â”€ api/              # API routes
-â”œâ”€â”€ components/
-â”‚   â”œâ”€â”€ compartidos/      # Layout, sidebar, etc.
-â”‚   â”œâ”€â”€ bandeja/          # Inbox omnicanal
-â”‚   â”œâ”€â”€ embudo/           # Pipeline Kanban
-â”‚   â””â”€â”€ ...
-â”œâ”€â”€ lib/
-â”‚   â”œâ”€â”€ supabase/         # Clientes Supabase
-â”‚   â”œâ”€â”€ ia/               # Agente LangChain + RAG
-â”‚   â””â”€â”€ canales/          # WhatsApp, Instagram, etc.
-â”œâ”€â”€ hooks/                # Custom hooks
-â””â”€â”€ types/                # Tipos TypeScript
+  app/
+    (aplicacion)/     # Rutas autenticadas (sidebar layout)
+      tablero/
+      bandeja/
+      contactos/
+      embudo/
+      propiedades/
+      campanas/
+      analiticas/
+      integraciones/
+      configuracion/
+    (auth)/           # Rutas publicas de autenticacion
+    (marketing)/      # Landing pages publicas
+      precios/
+    api/              # Route Handlers (server-side)
+  components/
+    bandeja/
+    contactos/
+    embudo/
+    propiedades/
+    campanas/
+    integraciones/
+    compartidos/
+  hooks/              # Hooks de React con logica de negocio
+  lib/
+    supabase/         # Clientes Supabase (servidor / cliente)
+  types/              # Tipos TypeScript del dominio
 supabase/
-â”œâ”€â”€ migrations/           # SQL migrations
-â”œâ”€â”€ functions/            # Edge Functions (Deno)
-â””â”€â”€ seed.sql              # Datos de prueba
-```
-
-## Funcionalidades
-
-- **Bandeja omnicanal**: WhatsApp, Instagram, Facebook, web â€” todo unificado con Supabase Realtime
-- **Agente IA de ventas**: GPT-4o entrenado con tu catÃ¡logo, busca propiedades por semÃ¡ntica (pgvector)
-- **Etiquetas Smart**: etiquetado automÃ¡tico de leads por IA
-- **Embudo Kanban**: pipeline visual con drag-and-drop
-- **CampaÃ±as masivas**: broadcast de WhatsApp con analÃ­ticas en tiempo real
-- **Agenda de visitas**: sincronizaciÃ³n con Google Calendar
-- **AnalÃ­ticas**: mÃ©tricas de conversiÃ³n, rendimiento por agente, consumo de tokens
-- **Multi-tenant**: RLS en todas las tablas, aislamiento garantizado por `tenant_id`
-
-## Endpoint de salud
-
-```
-GET /api/salud
+  functions/          # Edge Functions (Deno)
+  migrations/         # Migraciones SQL ordenadas
+public/
+  sw.js               # Service Worker PWA
+  manifest.json       # Web App Manifest
+  offline.html        # Pagina offline
 ```
 
 ## Licencia
 
-Propietario â€” Â© 2024 InmoCRM.AI
-
+Propietario — InmoCRM.AI © 2025. Todos los derechos reservados.

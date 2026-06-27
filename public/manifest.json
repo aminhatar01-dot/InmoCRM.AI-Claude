@@ -1,14 +1,16 @@
 {
   "name": "InmoCRM.AI",
   "short_name": "InmoCRM",
-  "description": "CRM Inmobiliario con Inteligencia Artificial",
+  "description": "CRM con IA para inmobiliarias de Latinoamerica",
   "start_url": "/tablero",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#6C47FF",
   "orientation": "portrait-primary",
+  "categories": ["productivity", "business"],
+  "lang": "es-AR",
   "icons": [
-    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
   ]
 }
