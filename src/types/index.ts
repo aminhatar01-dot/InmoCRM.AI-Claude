@@ -55,7 +55,9 @@ export interface Contacto {
   variables: Record<string, string>
   etapa: string
   asignado_a?: string
+  notas?: string
   creado_en: string
+  actualizado_en?: string
 }
 
 export interface Conversacion {
@@ -94,14 +96,23 @@ export interface Propiedad {
   tenant_id: string
   id_externo?: string
   titulo: string
-  tipo: 'venta' | 'alquiler'
-  precio: number
-  zona: string
+  tipo: 'departamento' | 'casa' | 'ph' | 'local' | 'oficina' | 'terreno' | 'cochera' | 'galpon'
+  operacion: 'venta' | 'alquiler' | 'alquiler_temporario'
+  precio?: number
+  moneda?: string
+  zona?: string
+  direccion?: string
   dormitorios?: number
-  banos?: number
+  banios?: number
+  superficie_total?: number
   descripcion?: string
-  url_brochure?: string
-  activa: boolean
+  fotos?: string[]
+  estado: 'disponible' | 'reservada' | 'vendida' | 'alquilada'
+  fuente_externa?: string
+  url_externa?: string
+  embedding?: number[]
+  creado_en: string
+  actualizado_en?: string
 }
 
 export interface Visita {
