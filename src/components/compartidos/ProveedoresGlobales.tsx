@@ -2,6 +2,7 @@
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useState } from 'react'
+import { ProveedorSesion } from './ProveedorSesion'
 
 export function ProveedoresGlobales({ children }: { children: React.ReactNode }) {
   const [clienteQuery] = useState(
@@ -18,7 +19,9 @@ export function ProveedoresGlobales({ children }: { children: React.ReactNode })
 
   return (
     <QueryClientProvider client={clienteQuery}>
-      {children}
+      <ProveedorSesion>
+        {children}
+      </ProveedorSesion>
     </QueryClientProvider>
   )
 }
