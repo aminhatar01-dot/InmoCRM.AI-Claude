@@ -130,14 +130,13 @@ export interface Campana {
   id: string
   tenant_id: string
   nombre: string
-  canal: CanalOrigen
-  segmento_objetivo: Record<string, unknown>
   mensaje: string
-  estado: 'borrador' | 'programada' | 'enviando' | 'completada'
-  cant_enviados: number
-  cant_entregados: number
-  cant_respuestas: number
+  estado: 'BORRADOR' | 'EN_PROCESO' | 'ENVIADA' | 'PAUSADA'
+  segmento?: { etapas?: string[]; etiquetas?: string[]; canales?: string[] }
+  total_enviados: number
+  total_respondidos: number
   programada_en?: string
+  creado_en: string
 }
 
 export interface Recordatorio {

@@ -28,6 +28,7 @@ export default async function LayoutAplicacion({
         <BarraSuperior
           nombreUsuario={perfil?.nombre ?? user.email ?? 'Usuario'}
           nombreTenant={(perfil?.tenants as unknown as { nombre: string } | null)?.nombre ?? 'Mi Agencia'}
+          userId={user.id}
         />
         <main className="flex-1 overflow-auto">
           {children}
