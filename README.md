@@ -1,6 +1,6 @@
-# InmoCRM.AI 🏠
+﻿# InmoCRM.AI ðŸ 
 
-CRM inmobiliario nativo en IA. Plataforma SaaS multi-tenant con agente conversacional, bandeja omnicanal y gestión inteligente de leads para inmobiliarias.
+CRM inmobiliario nativo en IA. Plataforma SaaS multi-tenant con agente conversacional, bandeja omnicanal y gestiÃ³n inteligente de leads para inmobiliarias.
 
 ## Stack
 
@@ -32,22 +32,22 @@ cp .env.example .env.local
 # Editar .env.local con tus credenciales
 ```
 
-Variables mínimas para desarrollo:
+Variables mÃ­nimas para desarrollo:
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `OPENAI_API_KEY`
 
 ### 4. Configurar Supabase
 
-1. Creá un proyecto en [supabase.com](https://supabase.com)
-2. Ejecutá la migración en el SQL Editor de Supabase:
+1. CreÃ¡ un proyecto en [supabase.com](https://supabase.com)
+2. EjecutÃ¡ la migraciÃ³n en el SQL Editor de Supabase:
 
 ```bash
-# Copiá el contenido de supabase/migrations/001_esquema_inicial.sql
+# CopiÃ¡ el contenido de supabase/migrations/001_esquema_inicial.sql
 # y ejecutalo en el SQL Editor de tu proyecto Supabase
 ```
 
-3. Copiá la URL y la clave anon de Settings → API en tu `.env.local`
+3. CopiÃ¡ la URL y la clave anon de Settings â†’ API en tu `.env.local`
 
 ### 5. Iniciar en desarrollo
 
@@ -55,18 +55,18 @@ Variables mínimas para desarrollo:
 npm run dev
 ```
 
-Abrí [http://localhost:3000](http://localhost:3000)
+AbrÃ­ [http://localhost:3000](http://localhost:3000)
 
-## Deploy a producción
+## Deploy a producciÃ³n
 
-El deploy es automático via GitHub Actions:
+El deploy es automÃ¡tico via GitHub Actions:
 
-- Push a `main` → deploy en Vercel (producción)
-- Push a `develop` o apertura de PR → deploy de preview
+- Push a `main` â†’ deploy en Vercel (producciÃ³n)
+- Push a `develop` o apertura de PR â†’ deploy de preview
 
 ### Configurar secretos en GitHub
 
-En Settings → Secrets and variables → Actions:
+En Settings â†’ Secrets and variables â†’ Actions:
 
 ```
 VERCEL_TOKEN=
@@ -78,37 +78,37 @@ VERCEL_PROJECT_ID=
 
 ```
 src/
-├── app/
-│   ├── (marketing)/      # Landing, precios, blog
-│   ├── (autenticacion)/  # Login, registro, onboarding
-│   ├── (aplicacion)/     # App autenticada
-│   └── api/              # API routes
-├── components/
-│   ├── compartidos/      # Layout, sidebar, etc.
-│   ├── bandeja/          # Inbox omnicanal
-│   ├── embudo/           # Pipeline Kanban
-│   └── ...
-├── lib/
-│   ├── supabase/         # Clientes Supabase
-│   ├── ia/               # Agente LangChain + RAG
-│   └── canales/          # WhatsApp, Instagram, etc.
-├── hooks/                # Custom hooks
-└── types/                # Tipos TypeScript
+â”œâ”€â”€ app/
+â”‚   â”œâ”€â”€ (marketing)/      # Landing, precios, blog
+â”‚   â”œâ”€â”€ (autenticacion)/  # Login, registro, onboarding
+â”‚   â”œâ”€â”€ (aplicacion)/     # App autenticada
+â”‚   â””â”€â”€ api/              # API routes
+â”œâ”€â”€ components/
+â”‚   â”œâ”€â”€ compartidos/      # Layout, sidebar, etc.
+â”‚   â”œâ”€â”€ bandeja/          # Inbox omnicanal
+â”‚   â”œâ”€â”€ embudo/           # Pipeline Kanban
+â”‚   â””â”€â”€ ...
+â”œâ”€â”€ lib/
+â”‚   â”œâ”€â”€ supabase/         # Clientes Supabase
+â”‚   â”œâ”€â”€ ia/               # Agente LangChain + RAG
+â”‚   â””â”€â”€ canales/          # WhatsApp, Instagram, etc.
+â”œâ”€â”€ hooks/                # Custom hooks
+â””â”€â”€ types/                # Tipos TypeScript
 supabase/
-├── migrations/           # SQL migrations
-├── functions/            # Edge Functions (Deno)
-└── seed.sql              # Datos de prueba
+â”œâ”€â”€ migrations/           # SQL migrations
+â”œâ”€â”€ functions/            # Edge Functions (Deno)
+â””â”€â”€ seed.sql              # Datos de prueba
 ```
 
 ## Funcionalidades
 
-- **Bandeja omnicanal**: WhatsApp, Instagram, Facebook, web — todo unificado con Supabase Realtime
-- **Agente IA de ventas**: GPT-4o entrenado con tu catálogo, busca propiedades por semántica (pgvector)
-- **Etiquetas Smart**: etiquetado automático de leads por IA
+- **Bandeja omnicanal**: WhatsApp, Instagram, Facebook, web â€” todo unificado con Supabase Realtime
+- **Agente IA de ventas**: GPT-4o entrenado con tu catÃ¡logo, busca propiedades por semÃ¡ntica (pgvector)
+- **Etiquetas Smart**: etiquetado automÃ¡tico de leads por IA
 - **Embudo Kanban**: pipeline visual con drag-and-drop
-- **Campañas masivas**: broadcast de WhatsApp con analíticas en tiempo real
-- **Agenda de visitas**: sincronización con Google Calendar
-- **Analíticas**: métricas de conversión, rendimiento por agente, consumo de tokens
+- **CampaÃ±as masivas**: broadcast de WhatsApp con analÃ­ticas en tiempo real
+- **Agenda de visitas**: sincronizaciÃ³n con Google Calendar
+- **AnalÃ­ticas**: mÃ©tricas de conversiÃ³n, rendimiento por agente, consumo de tokens
 - **Multi-tenant**: RLS en todas las tablas, aislamiento garantizado por `tenant_id`
 
 ## Endpoint de salud
@@ -119,4 +119,5 @@ GET /api/salud
 
 ## Licencia
 
-Propietario — © 2024 InmoCRM.AI
+Propietario â€” Â© 2024 InmoCRM.AI
+
